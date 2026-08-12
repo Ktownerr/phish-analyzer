@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Analyze Email{% endblock %}
+{% block content %}
+<h1>Analyze a raw email</h1>
+<p class="subtitle">Paste the full raw source (headers + body) — in Gmail: "Show original"; in Outlook: "View source" / message options.</p>
+
+<form method="post" action="/analyze">
+    <textarea name="raw_email" rows="20" placeholder="Delivered-To: victim@example.com&#10;Return-Path: &lt;attacker@evil.com&gt;&#10;From: &quot;PayPal Support&quot; &lt;random123@evil-domain.com&gt;&#10;...&#10;&#10;Dear customer, your account has been suspended..." required></textarea>
+    <button type="submit">Analyze</button>
+</form>
+{% endblock %}

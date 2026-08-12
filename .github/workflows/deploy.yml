@@ -1,0 +1,33 @@
+name: Deploy Phish Analyzer
+
+# Runs on the self-hosted runner registered on the Ubuntu VM itself.
+# See README.md "GitHub auto-deploy setup" for how to register the runner.
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+
+      - name: Rebuild and restart containers
+        run: |
+          docker compose down
+          docker compose up -d --build
+
+      - name: Wait for app to come up
+        run: |
+          for i in {1..10}; do
+            if curl -sf http://localhost:8000/health; then
+              echo "App is healthy"
+              exit 0
+            fi
+            echo "Waiting for app..."
+            sleep 3
+          done
+          echo "App did not become healthy in time"
+          exit 1

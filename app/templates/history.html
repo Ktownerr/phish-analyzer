@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block content %}
+<h1>Your analysis history</h1>
+
+{% if records %}
+<table class="kv-table history-table">
+    <tr><th>Date</th><th>Subject</th><th>From</th><th>Score</th><th>Level</th></tr>
+    {% for r in records %}
+    <tr>
+        <td>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ r.subject }}</td>
+        <td>{{ r.from_address }}</td>
+        <td>{{ r.risk_score }}</td>
+        <td class="risk-{{ r.risk_level|lower }}">{{ r.risk_level }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No analyses yet. <a href="/">Analyze your first email</a>.</p>
+{% endif %}
+{% endblock %}

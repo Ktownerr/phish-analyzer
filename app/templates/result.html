@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Analysis Result{% endblock %}
+{% block content %}
+<a href="/" class="back-link">&larr; Analyze another</a>
+
+<div class="score-banner risk-{{ result.risk_level|lower }}">
+    <div class="score-number">{{ result.risk_score }}/100</div>
+    <div class="score-label">Risk level: {{ result.risk_level }}</div>
+</div>
+
+<section class="card">
+    <h2>Why this is suspicious</h2>
+    {% if result.reasons %}
+    <ul class="reasons">
+        {% for reason in result.reasons %}
+        <li>{{ reason }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No red flags detected by this analyzer. Always still verify sender identity through a separate channel.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>Headers</h2>
+    <table class="kv-table">
+        <tr><th>From</th><td>{{ result.headers.from_display_name }} &lt;{{ result.headers.from_address }}&gt;</td></tr>
+        <tr><th>Reply-To</th><td>{{ result.headers.reply_to_address or '(none)' }}</td></tr>
+        <tr><th>Subject</th><td>{{ result.headers.subject }}</td></tr>
+        <tr><th>Date</th><td>{{ result.headers.date }}</td></tr>
+        <tr><th>Return-Path</th><td>{{ result.headers.return_path }}</td></tr>
+        <tr><th>Received hops</th><td>{{ result.headers.received_hops }}</td></tr>
+    </table>
+</section>
+
+<section class="card">
+    <h2>Authentication results</h2>
+    <table class="kv-table">
+        <tr><th>SPF</th><td class="auth-{{ result.auth_results.spf }}">{{ result.auth_results.spf }}</td></tr>
+        <tr><th>DKIM</th><td class="auth-{{ result.auth_results.dkim }}">{{ result.auth_results.dkim }}</td></tr>
+        <tr><th>DMARC</th><td class="auth-{{ result.auth_results.dmarc }}">{{ result.auth_results.dmarc }}</td></tr>
+    </table>
+</section>
+
+<section class="card">
+    <h2>URLs found ({{ result.urls|length }})</h2>
+    {% if result.urls %}
+    <ul class="url-list">
+        {% for url in result.urls %}
+        <li>
+            <div class="url-text">{{ url.url }}</div>
+            {% if url.flags %}
+            <ul class="flags">
+                {% for flag in url.flags %}<li>⚠️ {{ flag }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No URLs found in the message body.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>Attachments ({{ result.attachments|length }})</h2>
+    {% if result.attachments %}
+    <ul class="url-list">
+        {% for att in result.attachments %}
+        <li>
+            <div class="url-text">{{ att.filename }} ({{ att.content_type }}, {{ att.size_bytes }} bytes)</div>
+            <div class="hash">SHA256: {{ att.sha256 }}</div>
+            {% if att.flags %}
+            <ul class="flags">
+                {% for flag in att.flags %}<li>⚠️ {{ flag }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No attachments found.</p>
+    {% endif %}
+</section>
+{% endblock %}

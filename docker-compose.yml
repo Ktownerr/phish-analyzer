@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: phishapp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: phishdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql+psycopg2://phishapp:${POSTGRES_PASSWORD:-changeme}@db:5432/phishdb
+      APP_SECRET_KEY: ${APP_SECRET_KEY:-change-me-in-env}
+      AD_SERVER: ${AD_SERVER:-ldap://192.168.56.10}
+      AD_DOMAIN: ${AD_DOMAIN:-corp.local}
+      AD_BASE_DN: ${AD_BASE_DN:-DC=corp,DC=local}
+      AD_REQUIRED_GROUP: ${AD_REQUIRED_GROUP:-}
+      AD_SERVICE_USER: ${AD_SERVICE_USER:-}
+      AD_SERVICE_PASS: ${AD_SERVICE_PASS:-}
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:

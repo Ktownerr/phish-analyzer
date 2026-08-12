@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Login - Phish Analyzer{% endblock %}
+{% block content %}
+<div class="login-box">
+    <h1>🎣 Phish Analyzer</h1>
+    <p class="subtitle">Sign in with your Active Directory account</p>
+    {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="/login">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="jdoe or jdoe@corp.local" required autofocus>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Sign in</button>
+    </form>
+</div>
+{% endblock %}

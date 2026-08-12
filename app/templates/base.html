@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Phishing Email Analyzer{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="topnav">
+        <div class="brand">🎣 Phish Analyzer</div>
+        {% if user %}
+        <div class="nav-links">
+            <span>Signed in as <strong>{{ user }}</strong></span>
+            <a href="/">Analyze</a>
+            <a href="/history">History</a>
+            <a href="/logout">Log out</a>
+        </div>
+        {% endif %}
+    </nav>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
