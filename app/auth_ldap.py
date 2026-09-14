@@ -11,7 +11,7 @@ Strategy: "bind as the user" auth.
      group membership.
 
 Set these in your environment (see .env.example):
-  AD_SERVER          e.g. ldap://192.168.56.10  (use ldaps:// once you set up TLS)
+  AD_SERVER          e.g. ldaps://192.168.50.10:636
   AD_DOMAIN          e.g. corp.local
   AD_BASE_DN         e.g. DC=corp,DC=local
   AD_REQUIRED_GROUP  e.g. PhishAnalyzer-Users   (optional - leave blank to skip group check)
@@ -30,21 +30,6 @@ AD_REQUIRED_GROUP = os.environ.get("AD_REQUIRED_GROUP", "")  # optional
 AD_SERVICE_USER = os.environ.get("AD_SERVICE_USER", "")
 AD_SERVICE_PASS = os.environ.get("AD_SERVICE_PASS", "")
 
-# ============================================================================
-# DEV-ONLY BYPASS -- REMOVE BEFORE YOU DEMO/SUBMIT THIS PROJECT
-# ----------------------------------------------------------------------------
-# When DEV_MODE=true is set in the environment, login skips the real LDAP
-# bind entirely and accepts ANY username with password "devpass". This lets
-# you click through the full app UI before your AD VM is ready.
-#
-# This is NOT secure and must not be present in your final submission or
-# demo -- your rubric almost certainly requires real AD authentication.
-# To remove it: delete this whole block plus the "if DEV_MODE" check at the
-# top of authenticate_user() below.
-DEV_MODE = os.environ.get("DEV_MODE", "false").lower() == "true"
-DEV_PASSWORD = "devpass"
-# ============================================================================
-
 
 def _user_principal(username: str) -> str:
     """Build a UPN like 'jdoe@corp.local' if a bare username was entered."""
@@ -59,12 +44,6 @@ def authenticate_user(username: str, password: str):
     """
     if not username or not password:
         return False, "Username and password required"
-
-    # DEV-ONLY BYPASS -- see block near top of file. Remove before submission.
-    if DEV_MODE:
-        if password == DEV_PASSWORD:
-            return True, None
-        return False, f"Dev mode is on -- use password '{DEV_PASSWORD}'"
 
     upn = _user_principal(username)
     server = Server(AD_SERVER, get_info=ALL)
