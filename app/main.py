@@ -7,6 +7,7 @@ a risk score, and a plain-English "why this is suspicious" writeup.
 """
 
 import json
+import logging
 import os
 from datetime import datetime, timedelta
 
@@ -26,6 +27,12 @@ from app import db
 SECRET_KEY = os.environ.get("APP_SECRET_KEY", "change-me-in-env")
 JWT_ALGO = "HS256"
 JWT_EXPIRE_MINUTES = 60
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+auth_logger = logging.getLogger("phishapp.auth")
 
 app = FastAPI(title="Phishing Email Analyzer")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -59,6 +66,10 @@ def get_current_user(request: Request):
         return None
 
 
+def _client_ip(request: Request) -> str:
+    return request.client.host if request.client else "unknown"
+
+
 # --- Routes -----------------------------------------------------------------
 
 @app.get("/", response_class=HTMLResponse)
@@ -79,10 +90,13 @@ def login_form(request: Request):
 @app.post("/login")
 def login(request: Request, username: str = Form(...), password: str = Form(...)):
     ok, error = authenticate_user(username, password)
+    ip = _client_ip(request)
     if not ok:
+        auth_logger.warning("Failed login attempt: username=%s ip=%s reason=%s", username, ip, error)
         return templates.TemplateResponse(
             "login.html", {"request": request, "error": error or "Invalid credentials"}
         )
+    auth_logger.info("Successful login: username=%s ip=%s", username, ip)
     token = create_token(username)
     response = RedirectResponse(url="/", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key="access_token", value=token, httponly=True, max_age=JWT_EXPIRE_MINUTES * 60)

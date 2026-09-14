@@ -1,13 +1,32 @@
 name: Deploy Phish Analyzer
 
-# Runs on the self-hosted runner registered on the Ubuntu VM itself.
+# test: runs on GitHub's hosted runner (isolated, no AD/DB needed for these tests).
+# deploy: runs on the self-hosted runner on the Ubuntu VM itself, only if tests pass.
 # See README.md "GitHub auto-deploy setup" for how to register the runner.
 on:
   push:
     branches: [main]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+
+      - name: Run unit tests
+        run: pytest tests/ -v
+
   deploy:
+    needs: test
     runs-on: self-hosted
 
     steps:
