@@ -14,6 +14,9 @@ jobs:
       - name: Checkout latest code
         uses: actions/checkout@v4
 
+      - name: Restore .env from secrets location
+        run: cp ~/.secrets/phishapp.env .env
+
       - name: Rebuild and restart containers
         run: |
           docker compose down
