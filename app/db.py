@@ -71,3 +71,15 @@ def get_history(username: str, limit: int = 25):
         return rows
     finally:
         session.close()
+
+
+def get_analysis_by_id(username: str, analysis_id: int):
+    session = SessionLocal()
+    try:
+        return (
+            session.query(Analysis)
+            .filter(Analysis.username == username, Analysis.id == analysis_id)
+            .first()
+        )
+    finally:
+        session.close()

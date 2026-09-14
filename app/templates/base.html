@@ -5,21 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Phishing Email Analyzer{% endblock %}</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script>
+        (function() {
+            var stored = localStorage.getItem('theme');
+            if (stored) document.documentElement.setAttribute('data-theme', stored);
+        })();
+    </script>
 </head>
 <body>
     <nav class="topnav">
         <div class="brand">🎣 Phish Analyzer</div>
-        {% if user %}
         <div class="nav-links">
+            {% if user %}
             <span>Signed in as <strong>{{ user }}</strong></span>
             <a href="/">Analyze</a>
             <a href="/history">History</a>
             <a href="/logout">Log out</a>
+            {% endif %}
+            <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle light and dark theme">🌙</button>
         </div>
-        {% endif %}
     </nav>
     <main class="container">
         {% block content %}{% endblock %}
     </main>
+    <script>
+        (function() {
+            var root = document.documentElement;
+            var btn = document.getElementById('theme-toggle');
+            function currentTheme() {
+                return root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+            }
+            function updateIcon() {
+                btn.textContent = currentTheme() === 'light' ? '☀️' : '🌙';
+            }
+            updateIcon();
+            btn.addEventListener('click', function() {
+                var next = currentTheme() === 'light' ? 'dark' : 'light';
+                root.setAttribute('data-theme', next);
+                localStorage.setItem('theme', next);
+                updateIcon();
+            });
+        })();
+    </script>
 </body>
 </html>

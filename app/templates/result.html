@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Analysis Result{% endblock %}
 {% block content %}
-<a href="/" class="back-link">&larr; Analyze another</a>
+<a href="{{ back_url or '/' }}" class="back-link">&larr; {{ back_label or 'Analyze another' }}</a>
 
 <div class="score-banner risk-{{ result.risk_level|lower }}">
     <div class="score-number">{{ result.risk_score }}/100</div>

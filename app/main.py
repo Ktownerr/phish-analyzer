@@ -6,6 +6,7 @@ and get back a parsed SPF/DKIM/DMARC summary, extracted URLs/attachments,
 a risk score, and a plain-English "why this is suspicious" writeup.
 """
 
+import json
 import os
 from datetime import datetime, timedelta
 
@@ -117,6 +118,29 @@ def history(request: Request):
     records = db.get_history(user)
     return templates.TemplateResponse(
         "history.html", {"request": request, "user": user, "records": records}
+    )
+
+
+@app.get("/history/{analysis_id}", response_class=HTMLResponse)
+def history_detail(analysis_id: int, request: Request):
+    user = get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login")
+
+    record = db.get_analysis_by_id(user, analysis_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+
+    result = json.loads(record.result_json)
+    return templates.TemplateResponse(
+        "result.html",
+        {
+            "request": request,
+            "user": user,
+            "result": result,
+            "back_url": "/history",
+            "back_label": "Back to history",
+        },
     )
 
 
